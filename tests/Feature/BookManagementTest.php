@@ -8,6 +8,8 @@ use Tests\TestCase;
 
 class BookManagementTest extends TestCase
 {
+    use RefreshDatabase;
+
     /**
      * A basic feature test example.
      *
@@ -21,9 +23,14 @@ class BookManagementTest extends TestCase
     // }
 
 
+    public function setUp()
+    {
+        parent::setUp();
+    }
+
     public function testStatus201WithMessageCreatedWhenCreateABook()
     {
-        // $this->withoutExceptionHandling();
+        $this->withoutExceptionHandling();
 
         $response = $this->post("/books", [
             "title" => "Gone with the wind",
@@ -45,7 +52,7 @@ class BookManagementTest extends TestCase
             "ISBN" => "12b-422-24ff"
         ]);
 
-        $this->assertDatabaseCount('books', 1)
+        $this->assertDatabaseCount('books', 1);
     }
 
 }
