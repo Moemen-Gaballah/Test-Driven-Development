@@ -6,6 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\Author;
+use App\Models\User;
 
 class BookValidationTest extends TestCase
 {
@@ -14,34 +15,40 @@ class BookValidationTest extends TestCase
     public function testCannotCreateBookWithEmptyTitle()
     {
         // self::markTestSkipped(); // ignore this test
-        $response = $this->post('/books', $this->data(['title' => ""]));
+        $response = $this->actingAs($this->user)->post('/books', $this->data(['title' => ""]));
         $response->assertSessionHasErrors(["title" => "title is required"]); 
     }
 
     public function testDescriptionIsRequired()
     {
-        $response = $this->post('/books', $this->data(['description' => ""]));
+        $response = $this->actingAs($this->user)->post('/books', $this->data(['description' => ""]));
         $response->assertSessionHasErrors(["description" => "description is required"]); 
     }
 
 
     public function testDescriptionLengthMinimumIs20Charaters()
     {
-        $response = $this->post('/books', $this->data(['description' => "wadwa"]));
+        $response = $this->actingAs($this->user)->post('/books', $this->data(['description' => "wadwa"]));
         $response->assertSessionHasErrors(["description" => "description length minimum is 20"]); 
     }
 
 
-    // public function testAuthorIdMustBeValid()
-    // {
-    //     $response = $this->post('/books', $this->data());
-    //     $response->assertSessionHasErrors(["author_id" => "Author must be valid"]); 
-    // }
+    public function testAuthorIdMustBeValid()
+    {
+        $response = $this->actingAs($this->user)->post('/books', $this->data());
+        $response->assertSessionHasErrors(["author_id" => "Author must be valid"]); 
+    }
 
     public function testIsbnMustBeOfValidFormat()
     {
-        $response = $this->post('/books', $this->data(["ISBN" => "dawwadaw"]));
+        $response = $this->actingAs($this->user)->post('/books', $this->data(["ISBN" => "dawwadaw"]));
         $response->assertSessionHasErrors(["ISBN" => "ISBN must be of valid format"]); 
+    }
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->user = User::factory()->create();
     }
 
     private function data($data = [])

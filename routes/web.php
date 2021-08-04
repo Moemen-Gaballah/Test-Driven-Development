@@ -25,6 +25,6 @@ Route::get('/dashboard', function () {
 require __DIR__.'/auth.php';
 
 
-Route::post("/books", [BooksController::class, "store"]);
+Route::post("/books", [BooksController::class, "store"])->middleware(['auth','validated']);
 
 
