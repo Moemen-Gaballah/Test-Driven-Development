@@ -5,8 +5,9 @@ namespace Tests\Feature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
+use App\Models\Author;
 
-class BookManagementTest extends TestCase
+class BookCURDTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -25,7 +26,7 @@ class BookManagementTest extends TestCase
 
     public function testStatus201WithMessageCreatedWhenCreateABook()
     {
-        // $this->withoutExceptionHandling();
+        $this->withoutExceptionHandling();
 
         $this->response->assertCreated();
         $this->response->assertJson(["message" => "Created"]);
@@ -36,21 +37,19 @@ class BookManagementTest extends TestCase
         
         $this->assertDatabaseCount('books', 1);
     }
-
-
-    public function testCannotCreateBookWithEmptyTitle()
-    {
-        // self::markTestSkipped(); // ignore this test
-        $response = $this->post('/books', $this->data(['title' => ""]));
-        $response->assertSessionHasErrors(["title" => "title is required"]); 
-    }
+    
 
     private function data($data = [])
     {
+        $author = Author::factory()->create([
+            'name' => 'test',
+        ]);
+
         $default = [
             "title" => "Gone with the wind",
             "description" => "Bestseller or New York Times",
-            "author_id" => 1,
+            "author_id" => $author->id,
+            // "author_id" => 1,
             "ISBN" => "12b-422-24ff"
         ];
 
