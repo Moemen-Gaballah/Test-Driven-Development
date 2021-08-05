@@ -29,8 +29,8 @@ class BookCURDTest extends TestCase
     {
         // $this->withoutExceptionHandling();
 
-        $user = User::factory()->create();
-        $response = $this->actingAs($user)->post('/books', $this->data());
+        // $user = User::factory()->create();
+        $response = $this->actingAs($this->user)->post('/books', $this->data());
 
         $response->assertCreated();
         $response->assertJson(["message" => "Created"]);
@@ -45,18 +45,39 @@ class BookCURDTest extends TestCase
 
     public function testCountOfDatabaseInBooksTableIs1()
     {
-        $user = User::factory()->create();
-        $this->actingAs($user)->post("/books", $this->data());
+        // $user = User::factory()->create();
+        $this->actingAs($this->user)->post("/books", $this->data());
         $this->assertDatabaseCount('books', 1);
     }
     
 
     public function testAssertValidatedCookieExistsAfterVisitingBooksRoute()
     {
-        $user = User::factory()->create();
-        $response = $this->actingAs($user)->post("/books", $this->data());
+        // $user = User::factory()->create();
+        $response = $this->actingAs($this->user)->post("/books", $this->data());
         $response->assertCookie('validated', 'yes');
     }
+
+    public function testLibrarianCanSeeBookCreatingForm()
+    {
+       $user = $this->user;
+       $user->role = "Librarian";
+       $res = $this->actingAs($user)->get('/books/create');
+       $res->assertOk(); 
+       $res->assertViewIs("books.book_creation");
+    }
+
+    public function testNonLibrarianCannotSeeBookCreatingForm()
+    {
+        // $this->withoutExceptionHandling();
+
+        $user = $this->user;
+        $user->role = "non-librarian";
+        $res = $this->actingAs($user)->get('/books/create');
+        $res->assertForbidden(); 
+
+    }
+
 
     private function data($data = [])
     {
@@ -76,10 +97,11 @@ class BookCURDTest extends TestCase
     }
 
 
-    // protected function setUp(): void
-    // {
-    //     parent::setUp();
-    // }
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->user = User::factory()->create();
+    }
 
 
 }

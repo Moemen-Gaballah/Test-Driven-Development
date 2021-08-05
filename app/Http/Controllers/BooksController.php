@@ -8,6 +8,11 @@ use App\Http\Requests\BookRequest;
 
 class BooksController extends Controller
 {
+    public function create()
+    {
+        return view('books.book_creation');
+    }
+
     public function store(BookRequest $request)
     {
         // $request->validate(["title" => "required"]);
